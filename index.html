@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bar Code Generator Pro</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- JsBarcode for 1D barcodes -->
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+    <!-- QRCode.js for QR codes -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <!-- bwip-js for advanced barcodes -->
+    <script src="https://cdn.jsdelivr.net/npm/bwip-js@4.1.2/dist/bwip-js-min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <span class="logo-icon">▊▌▊▌▊</span>
+                <h1>Bar Code Generator Pro</h1>
+            </div>
+            <button class="theme-toggle" id="themeToggle" title="Toggle Dark Mode">
+                <span class="theme-icon">🌙</span>
+            </button>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Left Panel - Controls -->
+            <aside class="control-panel">
+                <!-- Barcode Type Selection -->
+                <section class="control-section">
+                    <h2 class="section-title">
+                        <span class="section-icon">📊</span>
+                        Barcode Type
+                    </h2>
+                    <div class="type-tabs">
+                        <button class="type-tab active" data-category="1d">1D Codes</button>
+                        <button class="type-tab" data-category="2d">2D Codes</button>
+                    </div>
+                    <div class="barcode-types" id="barcodeTypes">
+                        <!-- 1D Barcodes -->
+                        <div class="type-group" data-category="1d">
+                            <label class="type-option selected" data-type="EAN13">
+                                <input type="radio" name="barcodeType" value="EAN13" checked>
+                                <span class="type-card">
+                                    <span class="type-name">EAN-13</span>
+                                    <span class="type-desc">GS1 retail product code</span>
+                                    <span class="type-desc-dk">GS1 detailprodukt kode</span>
+                                </span>
+                            </label>
+                            <label class="type-option" data-type="EAN8">
+                                <input type="radio" name="barcodeType" value="EAN8">
+                                <span class="type-card">
+                                    <span class="type-name">EAN-8</span>
+                                    <span class="type-desc">Compact GS1 code</span>
+                                    <span class="type-desc-dk">Kompakt GS1 kode</span>
+                                </span>
+                            </label>
+                            <label class="type-option" data-type="UPC">
+                                <input type="radio" name="barcodeType" value="UPC">
+                                <span class="type-card">
+                                    <span class="type-name">UPC-A</span>
+                                    <span class="type-desc">USA/Canada retail</span>
+                                    <span class="type-desc-dk">USA/Canada detail</span>
+                                </span>
+                            </label>
+                            <label class="type-option" data-type="CODE39">
+                                <input type="radio" name="barcodeType" value="CODE39">
+                                <span class="type-card">
+                                    <span class="type-name">Code 39</span>
+                                    <span class="type-desc">Alphanumeric</span>
+                                    <span class="type-desc-dk">Alfanumerisk</span>
+                                </span>
+                            </label>
+                            <label class="type-option" data-type="CODE128">
+                                <input type="radio" name="barcodeType" value="CODE128">
+                                <span class="type-card">
+                                    <span class="type-name">Code 128</span>
+                                    <span class="type-desc">Full ASCII support</span>
+                                    <span class="type-desc-dk">Fuld ASCII understøttelse</span>
+                                </span>
+                            </label>
+                            <label class="type-option" data-type="ITF14">
+                                <input type="radio" name="barcodeType" value="ITF14">
+                                <span class="type-card">
+                                    <span class="type-name">ITF-14</span>
+                                    <span class="type-desc">Shipping/logistics</span>
+                                    <span class="type-desc-dk">Forsendelse/logistik</span>
+                                </span>
+                            </label>
+                        </div>
+                        <!-- 2D Barcodes -->
+                        <div class="type-group hidden" data-category="2d">
+                            <label class="type-option" data-type="QR">
+                                <input type="radio" name="barcodeType" value="QR">
+                                <span class="type-card">
+                                    <span class="type-name">QR Code</span>
+                                    <span class="type-desc">Universal 2D code</span>
+                                    <span class="type-desc-dk">Universel 2D kode</span>
+                                </span>
+                            </label>
+                            <label class="type-option" data-type="DATAMATRIX">
+                                <input type="radio" name="barcodeType" value="DATAMATRIX">
+                                <span class="type-card">
+                                    <span class="type-name">Data Matrix</span>
+                                    <span class="type-desc">Industrial grade</span>
+                                    <span class="type-desc-dk">Industriel kvalitet</span>
+                                </span>
+                            </label>
+                            <label class="type-option" data-type="PDF417">
+                                <input type="radio" name="barcodeType" value="PDF417">
+                                <span class="type-card">
+                                    <span class="type-name">PDF417</span>
+                                    <span class="type-desc">ID cards/documents</span>
+                                    <span class="type-desc-dk">ID-kort/dokumenter</span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- QR Content Type (only visible for QR) -->
+                <section class="control-section qr-only" id="qrContentSection">
+                    <h2 class="section-title">
+                        <span class="section-icon">📝</span>
+                        Content Type
+                    </h2>
+                    <div class="content-type-grid" id="contentTypeGrid">
+                        <button class="content-type-btn active" data-content="text" title="Plain Text">
+                            <span class="btn-icon">📄</span>
+                            <span class="btn-label">Text</span>
+                        </button>
+                        <button class="content-type-btn" data-content="url" title="Website URL">
+                            <span class="btn-icon">🔗</span>
+                            <span class="btn-label">URL</span>
+                        </button>
+                        <button class="content-type-btn" data-content="email" title="Email">
+                            <span class="btn-icon">📧</span>
+                            <span class="btn-label">Email</span>
+                        </button>
+                        <button class="content-type-btn" data-content="phone" title="Phone Number">
+                            <span class="btn-icon">📱</span>
+                            <span class="btn-label">Phone</span>
+                        </button>
+                        <button class="content-type-btn" data-content="sms" title="SMS Message">
+                            <span class="btn-icon">💬</span>
+                            <span class="btn-label">SMS</span>
+                        </button>
+                        <button class="content-type-btn" data-content="wifi" title="WiFi Network">
+                            <span class="btn-icon">📶</span>
+                            <span class="btn-label">WiFi</span>
+                        </button>
+                        <button class="content-type-btn" data-content="vcard" title="Contact Card">
+                            <span class="btn-icon">👤</span>
+                            <span class="btn-label">Contact</span>
+                        </button>
+                        <button class="content-type-btn" data-content="event" title="Calendar Event">
+                            <span class="btn-icon">📅</span>
+                            <span class="btn-label">Event</span>
+                        </button>
+                        <button class="content-type-btn" data-content="geo" title="Location">
+                            <span class="btn-icon">📍</span>
+                            <span class="btn-label">Location</span>
+                        </button>
+                        <button class="content-type-btn" data-content="whatsapp" title="WhatsApp">
+                            <span class="btn-icon">💚</span>
+                            <span class="btn-label">WhatsApp</span>
+                        </button>
+                        <button class="content-type-btn" data-content="bitcoin" title="Bitcoin">
+                            <span class="btn-icon">₿</span>
+                            <span class="btn-label">Bitcoin</span>
+                        </button>
+                        <button class="content-type-btn" data-content="ethereum" title="Ethereum">
+                            <span class="btn-icon">⟠</span>
+                            <span class="btn-label">Ethereum</span>
+                        </button>
+                        <button class="content-type-btn" data-content="paypal" title="PayPal">
+                            <span class="btn-icon">💳</span>
+                            <span class="btn-label">PayPal</span>
+                        </button>
+                        <button class="content-type-btn" data-content="twitter" title="Twitter/X">
+                            <span class="btn-icon">🐦</span>
+                            <span class="btn-label">Twitter</span>
+                        </button>
+                        <button class="content-type-btn" data-content="instagram" title="Instagram">
+                            <span class="btn-icon">📷</span>
+                            <span class="btn-label">Instagram</span>
+                        </button>
+                        <button class="content-type-btn" data-content="facebook" title="Facebook">
+                            <span class="btn-icon">👍</span>
+                            <span class="btn-label">Facebook</span>
+                        </button>
+                        <button class="content-type-btn" data-content="linkedin" title="LinkedIn">
+                            <span class="btn-icon">💼</span>
+                            <span class="btn-label">LinkedIn</span>
+                        </button>
+                        <button class="content-type-btn" data-content="youtube" title="YouTube">
+                            <span class="btn-icon">▶️</span>
+                            <span class="btn-label">YouTube</span>
+                        </button>
+                        <button class="content-type-btn" data-content="tiktok" title="TikTok">
+                            <span class="btn-icon">🎵</span>
+                            <span class="btn-label">TikTok</span>
+                        </button>
+                        <button class="content-type-btn" data-content="spotify" title="Spotify">
+                            <span class="btn-icon">🎧</span>
+                            <span class="btn-label">Spotify</span>
+                        </button>
+                        <button class="content-type-btn" data-content="zoom" title="Zoom Meeting">
+                            <span class="btn-icon">🎥</span>
+                            <span class="btn-label">Zoom</span>
+                        </button>
+                        <button class="content-type-btn" data-content="appstore" title="App Store">
+                            <span class="btn-icon">🍎</span>
+                            <span class="btn-label">App Store</span>
+                        </button>
+                        <button class="content-type-btn" data-content="playstore" title="Play Store">
+                            <span class="btn-icon">🤖</span>
+                            <span class="btn-label">Play Store</span>
+                        </button>
+                        <button class="content-type-btn" data-content="mecard" title="MeCard">
+                            <span class="btn-icon">🪪</span>
+                            <span class="btn-label">MeCard</span>
+                        </button>
+                        <!-- Fun QR Codes / Sjove QR-koder -->
+                        <button class="content-type-btn fun-qr" data-content="rickroll" title="Rickroll 🎶">
+                            <span class="btn-icon">🕺</span>
+                            <span class="btn-label">Rickroll</span>
+                        </button>
+                        <button class="content-type-btn fun-qr" data-content="joke" title="Random Joke / Tilfældig Vittighed">
+                            <span class="btn-icon">😂</span>
+                            <span class="btn-label">Joke</span>
+                        </button>
+                        <button class="content-type-btn fun-qr" data-content="fortune" title="Fortune Cookie / Lykkekage">
+                            <span class="btn-icon">🥠</span>
+                            <span class="btn-label">Fortune</span>
+                        </button>
+                        <button class="content-type-btn fun-qr" data-content="compliment" title="Compliment / Kompliment">
+                            <span class="btn-icon">💝</span>
+                            <span class="btn-label">Compliment</span>
+                        </button>
+                        <button class="content-type-btn fun-qr" data-content="catfact" title="Cat Fact / Kattfakta">
+                            <span class="btn-icon">🐱</span>
+                            <span class="btn-label">Cat Fact</span>
+                        </button>
+                        <button class="content-type-btn fun-qr" data-content="dadjoke" title="Dad Joke / Farvitser">
+                            <span class="btn-icon">👨</span>
+                            <span class="btn-label">Dad Joke</span>
+                        </button>
+                        <button class="content-type-btn fun-qr" data-content="funlink" title="Fun Website / Sjov Hjemmeside">
+                            <span class="btn-icon">🎉</span>
+                            <span class="btn-label">Fun Link</span>
+                        </button>
+                        <button class="content-type-btn fun-qr" data-content="meme" title="Meme Generator">
+                            <span class="btn-icon">🌟</span>
+                            <span class="btn-label">Meme</span>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Input Section -->
+                <section class="control-section">
+                    <h2 class="section-title">
+                        <span class="section-icon">✏️</span>
+                        <span id="inputSectionTitle">Enter Data</span>
+                        <button class="random-btn" id="randomBtn" title="Generate Random Data">
+                            <span>🎲</span> Random
+                        </button>
+                    </h2>
+                    <div class="input-container" id="inputContainer">
+                        <!-- Default text input -->
+                        <div class="input-group" id="inputText">
+                            <label for="textInput">Text Content</label>
+                            <textarea id="textInput" placeholder="Enter your text here..." rows="3"></textarea>
+                        </div>
+
+                        <!-- URL input -->
+                        <div class="input-group hidden" id="inputUrl">
+                            <label for="urlInput">Website URL</label>
+                            <input type="url" id="urlInput" placeholder="https://example.com">
+                            <span class="input-hint">Include https:// for best results</span>
+                        </div>
+
+                        <!-- Email input -->
+                        <div class="input-group hidden" id="inputEmail">
+                            <label for="emailTo">Email Address</label>
+                            <input type="email" id="emailTo" placeholder="email@example.com">
+                            <label for="emailSubject">Subject (optional)</label>
+                            <input type="text" id="emailSubject" placeholder="Email subject">
+                            <label for="emailBody">Message (optional)</label>
+                            <textarea id="emailBody" placeholder="Email body..." rows="2"></textarea>
+                        </div>
+
+                        <!-- Phone input -->
+                        <div class="input-group hidden" id="inputPhone">
+                            <label for="phoneInput">Phone Number</label>
+                            <input type="tel" id="phoneInput" placeholder="+1234567890">
+                            <span class="input-hint">Include country code for international</span>
+                        </div>
+
+                        <!-- SMS input -->
+                        <div class="input-group hidden" id="inputSms">
+                            <label for="smsNumber">Phone Number</label>
+                            <input type="tel" id="smsNumber" placeholder="+1234567890">
+                            <label for="smsMessage">Message (optional)</label>
+                            <textarea id="smsMessage" placeholder="Your message..." rows="2"></textarea>
+                        </div>
+
+                        <!-- WiFi input -->
+                        <div class="input-group hidden" id="inputWifi">
+                            <label for="wifiSsid">Network Name (SSID)</label>
+                            <input type="text" id="wifiSsid" placeholder="MyWiFiNetwork">
+                            <label for="wifiPassword">Password</label>
+                            <input type="text" id="wifiPassword" placeholder="Password">
+                            <label for="wifiEncryption">Security Type</label>
+                            <select id="wifiEncryption">
+                                <option value="WPA">WPA/WPA2</option>
+                                <option value="WEP">WEP</option>
+                                <option value="nopass">No Password</option>
+                            </select>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="wifiHidden">
+                                <span>Hidden Network</span>
+                            </label>
+                        </div>
+
+                        <!-- vCard input -->
+                        <div class="input-group hidden" id="inputVcard">
+                            <div class="input-row">
+                                <div class="input-col">
+                                    <label for="vcardFirstName">First Name</label>
+                                    <input type="text" id="vcardFirstName" placeholder="John">
+                                </div>
+                                <div class="input-col">
+                                    <label for="vcardLastName">Last Name</label>
+                                    <input type="text" id="vcardLastName" placeholder="Doe">
+                                </div>
+                            </div>
+                            <label for="vcardOrg">Company/Organization</label>
+                            <input type="text" id="vcardOrg" placeholder="Company Inc.">
+                            <label for="vcardTitle">Job Title</label>
+                            <input type="text" id="vcardTitle" placeholder="Software Engineer">
+                            <label for="vcardPhone">Phone</label>
+                            <input type="tel" id="vcardPhone" placeholder="+1234567890">
+                            <label for="vcardEmail">Email</label>
+                            <input type="email" id="vcardEmail" placeholder="john@example.com">
+                            <label for="vcardWebsite">Website</label>
+                            <input type="url" id="vcardWebsite" placeholder="https://example.com">
+                            <label for="vcardAddress">Address</label>
+                            <textarea id="vcardAddress" placeholder="123 Main St, City, Country" rows="2"></textarea>
+                            <label for="vcardNote">Note</label>
+                            <textarea id="vcardNote" placeholder="Additional notes..." rows="2"></textarea>
+                        </div>
+
+                        <!-- Event input -->
+                        <div class="input-group hidden" id="inputEvent">
+                            <label for="eventTitle">Event Title</label>
+                            <input type="text" id="eventTitle" placeholder="Meeting">
+                            <div class="input-row">
+                                <div class="input-col">
+                                    <label for="eventStart">Start Date & Time</label>
+                                    <input type="datetime-local" id="eventStart">
+                                </div>
+                                <div class="input-col">
+                                    <label for="eventEnd">End Date & Time</label>
+                                    <input type="datetime-local" id="eventEnd">
+                                </div>
+                            </div>
+                            <label for="eventLocation">Location</label>
+                            <input type="text" id="eventLocation" placeholder="Conference Room A">
+                            <label for="eventDescription">Description</label>
+                            <textarea id="eventDescription" placeholder="Event details..." rows="2"></textarea>
+                        </div>
+
+                        <!-- Geo input -->
+                        <div class="input-group hidden" id="inputGeo">
+                            <div class="input-row">
+                                <div class="input-col">
+                                    <label for="geoLat">Latitude</label>
+                                    <input type="number" id="geoLat" placeholder="40.7128" step="any">
+                                </div>
+                                <div class="input-col">
+                                    <label for="geoLng">Longitude</label>
+                                    <input type="number" id="geoLng" placeholder="-74.0060" step="any">
+                                </div>
+                            </div>
+                            <label for="geoQuery">Or Search Location</label>
+                            <input type="text" id="geoQuery" placeholder="New York, USA">
+                            <span class="input-hint">Enter coordinates or a location name</span>
+                        </div>
+
+                        <!-- WhatsApp input -->
+                        <div class="input-group hidden" id="inputWhatsapp">
+                            <label for="whatsappNumber">Phone Number</label>
+                            <input type="tel" id="whatsappNumber" placeholder="+1234567890">
+                            <label for="whatsappMessage">Message (optional)</label>
+                            <textarea id="whatsappMessage" placeholder="Hello!" rows="2"></textarea>
+                            <span class="input-hint">Include country code without + or spaces</span>
+                        </div>
+
+                        <!-- Bitcoin input -->
+                        <div class="input-group hidden" id="inputBitcoin">
+                            <label for="bitcoinAddress">Bitcoin Address</label>
+                            <input type="text" id="bitcoinAddress" placeholder="1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa">
+                            <label for="bitcoinAmount">Amount (optional)</label>
+                            <input type="number" id="bitcoinAmount" placeholder="0.001" step="any">
+                            <label for="bitcoinLabel">Label (optional)</label>
+                            <input type="text" id="bitcoinLabel" placeholder="Donation">
+                            <label for="bitcoinMessage">Message (optional)</label>
+                            <input type="text" id="bitcoinMessage" placeholder="Thank you!">
+                        </div>
+
+                        <!-- Ethereum input -->
+                        <div class="input-group hidden" id="inputEthereum">
+                            <label for="ethereumAddress">Ethereum Address</label>
+                            <input type="text" id="ethereumAddress" placeholder="0x...">
+                            <label for="ethereumAmount">Amount (optional)</label>
+                            <input type="number" id="ethereumAmount" placeholder="0.1" step="any">
+                        </div>
+
+                        <!-- PayPal input -->
+                        <div class="input-group hidden" id="inputPaypal">
+                            <label for="paypalEmail">PayPal Email/Username</label>
+                            <input type="text" id="paypalEmail" placeholder="payments@example.com">
+                            <label for="paypalAmount">Amount (optional)</label>
+                            <input type="number" id="paypalAmount" placeholder="10.00" step="0.01">
+                            <label for="paypalCurrency">Currency</label>
+                            <select id="paypalCurrency">
+                                <option value="USD">USD ($)</option>
+                                <option value="EUR">EUR (€)</option>
+                                <option value="GBP">GBP (£)</option>
+                                <option value="CAD">CAD ($)</option>
+                                <option value="AUD">AUD ($)</option>
+                                <option value="JPY">JPY (¥)</option>
+                            </select>
+                            <label for="paypalDescription">Description (optional)</label>
+                            <input type="text" id="paypalDescription" placeholder="Payment for...">
+                        </div>
+
+                        <!-- Social Media inputs -->
+                        <div class="input-group hidden" id="inputTwitter">
+                            <label for="twitterUsername">Twitter/X Username</label>
+                            <div class="input-with-prefix">
+                                <span class="input-prefix">@</span>
+                                <input type="text" id="twitterUsername" placeholder="username">
+                            </div>
+                        </div>
+
+                        <div class="input-group hidden" id="inputInstagram">
+                            <label for="instagramUsername">Instagram Username</label>
+                            <div class="input-with-prefix">
+                                <span class="input-prefix">@</span>
+                                <input type="text" id="instagramUsername" placeholder="username">
+                            </div>
+                        </div>
+
+                        <div class="input-group hidden" id="inputFacebook">
+                            <label for="facebookUrl">Facebook Profile/Page URL</label>
+                            <input type="text" id="facebookUrl" placeholder="https://facebook.com/username">
+                            <span class="input-hint">Or just enter your username</span>
+                        </div>
+
+                        <div class="input-group hidden" id="inputLinkedin">
+                            <label for="linkedinUrl">LinkedIn Profile URL</label>
+                            <input type="text" id="linkedinUrl" placeholder="https://linkedin.com/in/username">
+                        </div>
+
+                        <div class="input-group hidden" id="inputYoutube">
+                            <label for="youtubeUrl">YouTube Channel/Video URL</label>
+                            <input type="text" id="youtubeUrl" placeholder="https://youtube.com/@channel">
+                        </div>
+
+                        <div class="input-group hidden" id="inputTiktok">
+                            <label for="tiktokUsername">TikTok Username</label>
+                            <div class="input-with-prefix">
+                                <span class="input-prefix">@</span>
+                                <input type="text" id="tiktokUsername" placeholder="username">
+                            </div>
+                        </div>
+
+                        <div class="input-group hidden" id="inputSpotify">
+                            <label for="spotifyUrl">Spotify URL</label>
+                            <input type="text" id="spotifyUrl" placeholder="https://open.spotify.com/...">
+                            <span class="input-hint">Artist, album, playlist, or track URL</span>
+                        </div>
+
+                        <div class="input-group hidden" id="inputZoom">
+                            <label for="zoomUrl">Zoom Meeting Link</label>
+                            <input type="text" id="zoomUrl" placeholder="https://zoom.us/j/1234567890">
+                            <label for="zoomPassword">Meeting Password (optional)</label>
+                            <input type="text" id="zoomPassword" placeholder="abc123">
+                        </div>
+
+                        <!-- App Store inputs -->
+                        <div class="input-group hidden" id="inputAppstore">
+                            <label for="appstoreUrl">App Store URL</label>
+                            <input type="text" id="appstoreUrl" placeholder="https://apps.apple.com/app/...">
+                            <span class="input-hint">Full App Store link for your app</span>
+                        </div>
+
+                        <div class="input-group hidden" id="inputPlaystore">
+                            <label for="playstoreUrl">Play Store URL</label>
+                            <input type="text" id="playstoreUrl" placeholder="https://play.google.com/store/apps/details?id=...">
+                            <span class="input-hint">Full Google Play Store link</span>
+                        </div>
+
+                        <!-- MeCard input -->
+                        <div class="input-group hidden" id="inputMecard">
+                            <label for="mecardName">Full Name</label>
+                            <input type="text" id="mecardName" placeholder="John Doe">
+                            <label for="mecardPhone">Phone</label>
+                            <input type="tel" id="mecardPhone" placeholder="+1234567890">
+                            <label for="mecardEmail">Email</label>
+                            <input type="email" id="mecardEmail" placeholder="john@example.com">
+                            <label for="mecardAddress">Address</label>
+                            <input type="text" id="mecardAddress" placeholder="123 Main St">
+                            <label for="mecardUrl">Website</label>
+                            <input type="url" id="mecardUrl" placeholder="https://example.com">
+                            <label for="mecardBirthday">Birthday</label>
+                            <input type="date" id="mecardBirthday">
+                            <label for="mecardNote">Note</label>
+                            <input type="text" id="mecardNote" placeholder="Met at conference">
+                        </div>
+
+                        <!-- Fun QR Code inputs / Sjove QR-kode input -->
+                        <div class="input-group hidden" id="inputRickroll">
+                            <div class="fun-qr-info">
+                                <span class="fun-qr-icon">🕺</span>
+                                <p><strong>Rickroll</strong></p>
+                                <p>Never gonna give you up! 🎶<br>
+                                <em>Aldrig vil jeg opgive dig!</em></p>
+                                <span class="input-hint">Click Generate to create the classic Rickroll QR!</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group hidden" id="inputJoke">
+                            <div class="fun-qr-info">
+                                <span class="fun-qr-icon">😂</span>
+                                <p><strong>Random Joke / Tilfældig Vittighed</strong></p>
+                                <p>Scan for a random joke!<br>
+                                <em>Scan for en tilfældig vittighed!</em></p>
+                            </div>
+                            <button class="fun-refresh-btn" id="refreshJoke" title="Get new joke">🔄 New Joke / Ny Vittighed</button>
+                            <div class="fun-preview" id="jokePreview"></div>
+                        </div>
+
+                        <div class="input-group hidden" id="inputFortune">
+                            <div class="fun-qr-info">
+                                <span class="fun-qr-icon">🥠</span>
+                                <p><strong>Fortune Cookie / Lykkekage</strong></p>
+                                <p>Your destiny awaits!<br>
+                                <em>Din skæbne venter!</em></p>
+                            </div>
+                            <button class="fun-refresh-btn" id="refreshFortune" title="Get new fortune">🔄 New Fortune / Ny Spådom</button>
+                            <div class="fun-preview" id="fortunePreview"></div>
+                        </div>
+
+                        <div class="input-group hidden" id="inputCompliment">
+                            <div class="fun-qr-info">
+                                <span class="fun-qr-icon">💝</span>
+                                <p><strong>Random Compliment / Tilfældigt Kompliment</strong></p>
+                                <p>Spread some kindness!<br>
+                                <em>Spred noget venlighed!</em></p>
+                            </div>
+                            <button class="fun-refresh-btn" id="refreshCompliment" title="Get new compliment">🔄 New Compliment / Nyt Kompliment</button>
+                            <div class="fun-preview" id="complimentPreview"></div>
+                        </div>
+
+                        <div class="input-group hidden" id="inputCatfact">
+                            <div class="fun-qr-info">
+                                <span class="fun-qr-icon">🐱</span>
+                                <p><strong>Cat Fact / Katte Fakta</strong></p>
+                                <p>Did you know?<br>
+                                <em>Vidste du det?</em></p>
+                            </div>
+                            <button class="fun-refresh-btn" id="refreshCatfact" title="Get new cat fact">🔄 New Fact / Ny Fakta</button>
+                            <div class="fun-preview" id="catfactPreview"></div>
+                        </div>
+
+                        <div class="input-group hidden" id="inputDadjoke">
+                            <div class="fun-qr-info">
+                                <span class="fun-qr-icon">👨</span>
+                                <p><strong>Dad Joke / Far Vittighed</strong></p>
+                                <p>Prepare for eye-rolls!<br>
+                                <em>Forbered dig på øjenkast!</em></p>
+                            </div>
+                            <button class="fun-refresh-btn" id="refreshDadjoke" title="Get new dad joke">🔄 New Dad Joke / Ny Far Vittighed</button>
+                            <div class="fun-preview" id="dadjokePreview"></div>
+                        </div>
+
+                        <div class="input-group hidden" id="inputFunlink">
+                            <div class="fun-qr-info">
+                                <span class="fun-qr-icon">🎉</span>
+                                <p><strong>Fun Website / Sjov Hjemmeside</strong></p>
+                                <p>Discover something fun!<br>
+                                <em>Opdag noget sjovt!</em></p>
+                            </div>
+                            <select id="funlinkSelect">
+                                <option value="theuselessweb">🎲 The Useless Web</option>
+                                <option value="pointerpointer">👆 Pointer Pointer</option>
+                                <option value="corgi">🐕 Corgi Orgy</option>
+                                <option value="paper">✈️ Paper Toilet</option>
+                                <option value="comfort">😌 Comfort Zone</option>
+                                <option value="patience">⏳ Patience Game</option>
+                                <option value="nyan">🐱 Nyan Cat</option>
+                                <option value="hackertyper">💻 Hacker Typer</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group hidden" id="inputMeme">
+                            <div class="fun-qr-info">
+                                <span class="fun-qr-icon">🌟</span>
+                                <p><strong>Meme / Meme</strong></p>
+                                <p>Internet culture at its finest!<br>
+                                <em>Internetkultur på sit bedste!</em></p>
+                            </div>
+                            <label for="memeTop">Top Text / Øverste tekst</label>
+                            <input type="text" id="memeTop" placeholder="Top text...">
+                            <label for="memeBottom">Bottom Text / Nederste tekst</label>
+                            <input type="text" id="memeBottom" placeholder="Bottom text...">
+                            <label for="memeTemplate">Template / Skabelon</label>
+                            <select id="memeTemplate">
+                                <option value="doge">🐕 Doge</option>
+                                <option value="success">👶 Success Kid</option>
+                                <option value="aliens">👽 Aliens Guy</option>
+                                <option value="drake">🎤 Drake</option>
+                                <option value="futurama">🤔 Not Sure Fry</option>
+                                <option value="distracted">😍 Distracted BF</option>
+                                <option value="pikachu">⚡ Surprised Pikachu</option>
+                                <option value="batman">🦇 Batman Slap</option>
+                            </select>
+                        </div>
+
+                        <!-- 1D Barcode inputs -->
+                        <div class="input-group hidden" id="inputEan13">
+                            <div class="gs1-input-mode">
+                                <label class="radio-label">
+                                    <input type="radio" name="ean13Mode" value="simple" checked>
+                                    <span>Simple / Enkel</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="ean13Mode" value="gs1">
+                                    <span>GS1 Structure / GS1 Struktur</span>
+                                </label>
+                            </div>
+                            <div id="ean13SimpleInput">
+                                <label for="ean13Input">EAN-13 Code (exactly 13 digits / præcis 13 cifre)</label>
+                                <input type="text" id="ean13Input" placeholder="5901234123457" maxlength="13" pattern="[0-9]*">
+                                <span class="input-hint">Enter exactly 13 digits / Indtast præcis 13 cifre</span>
+                            </div>
+                            <div id="ean13Gs1Input" class="hidden">
+                                <div class="gs1-fields">
+                                    <div class="gs1-field">
+                                        <label for="ean13Prefix">GS1 Prefix / Præfiks (2-3 digits)</label>
+                                        <input type="text" id="ean13Prefix" placeholder="57" maxlength="3" pattern="[0-9]*">
+                                        <span class="input-hint">e.g. 57=Denmark, 40=Germany, 50=UK</span>
+                                    </div>
+                                    <div class="gs1-field">
+                                        <label for="ean13Company">Company / Virksomhed (4-7 digits)</label>
+                                        <input type="text" id="ean13Company" placeholder="12345" maxlength="7" pattern="[0-9]*">
+                                        <span class="input-hint">Company number / Virksomhedsnummer</span>
+                                    </div>
+                                    <div class="gs1-field">
+                                        <label for="ean13Product">Product / Vare (remaining digits)</label>
+                                        <input type="text" id="ean13Product" placeholder="12345" maxlength="5" pattern="[0-9]*">
+                                        <span class="input-hint">Product number / Varenummer</span>
+                                    </div>
+                                    <div class="gs1-field">
+                                        <label>Check Digit / Kontrolciffer</label>
+                                        <input type="text" id="ean13CheckDigit" readonly placeholder="Auto">
+                                        <span class="input-hint">Auto-calculated / Beregnes automatisk</span>
+                                    </div>
+                                </div>
+                                <div class="gs1-preview" id="ean13Preview">
+                                    <span class="gs1-preview-label">Full Code / Fuld kode (must be 13 digits):</span>
+                                    <span class="gs1-preview-value" id="ean13PreviewValue">---</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-group hidden" id="inputEan8">
+                            <div class="gs1-input-mode">
+                                <label class="radio-label">
+                                    <input type="radio" name="ean8Mode" value="simple" checked>
+                                    <span>Simple / Enkel</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="ean8Mode" value="gs1">
+                                    <span>GS1 Structure / GS1 Struktur</span>
+                                </label>
+                            </div>
+                            <div id="ean8SimpleInput">
+                                <label for="ean8Input">EAN-8 Code (7-8 digits)</label>
+                                <input type="text" id="ean8Input" placeholder="96385074" maxlength="8" pattern="[0-9]*">
+                                <span class="input-hint">Enter 7 digits (checksum auto-calculated) or 8 digits</span>
+                            </div>
+                            <div id="ean8Gs1Input" class="hidden">
+                                <div class="gs1-fields">
+                                    <div class="gs1-field">
+                                        <label for="ean8Prefix">GS1 Prefix / Præfiks (2-3 digits)</label>
+                                        <input type="text" id="ean8Prefix" placeholder="57" maxlength="3" pattern="[0-9]*">
+                                        <span class="input-hint">Country code / Landekode</span>
+                                    </div>
+                                    <div class="gs1-field">
+                                        <label for="ean8Product">Item Ref / Vareref. (4-5 digits)</label>
+                                        <input type="text" id="ean8Product" placeholder="12345" maxlength="5" pattern="[0-9]*">
+                                        <span class="input-hint">Product number / Varenummer</span>
+                                    </div>
+                                    <div class="gs1-field">
+                                        <label>Check Digit / Kontrolciffer</label>
+                                        <input type="text" id="ean8CheckDigit" readonly placeholder="Auto">
+                                        <span class="input-hint">Auto-calculated / Beregnes automatisk</span>
+                                    </div>
+                                </div>
+                                <div class="gs1-preview" id="ean8Preview">
+                                    <span class="gs1-preview-label">Full Code / Fuld kode:</span>
+                                    <span class="gs1-preview-value" id="ean8PreviewValue">---</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-group hidden" id="inputUpc">
+                            <div class="gs1-input-mode">
+                                <label class="radio-label">
+                                    <input type="radio" name="upcMode" value="simple" checked>
+                                    <span>Simple / Enkel</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="upcMode" value="gs1">
+                                    <span>GS1 Structure / GS1 Struktur</span>
+                                </label>
+                            </div>
+                            <div id="upcSimpleInput">
+                                <label for="upcInput">UPC-A Code (11-12 digits)</label>
+                                <input type="text" id="upcInput" placeholder="012345678905" maxlength="12" pattern="[0-9]*">
+                                <span class="input-hint">Enter 11 digits (checksum auto-calculated) or 12 digits</span>
+                            </div>
+                            <div id="upcGs1Input" class="hidden">
+                                <div class="gs1-fields">
+                                    <div class="gs1-field">
+                                        <label for="upcNumSys">Number System / Nummersystem (1 digit)</label>
+                                        <input type="text" id="upcNumSys" placeholder="0" maxlength="1" pattern="[0-9]*">
+                                        <span class="input-hint">0-9 product category / Produktkategori</span>
+                                    </div>
+                                    <div class="gs1-field">
+                                        <label for="upcManufacturer">Manufacturer / Producent (5 digits)</label>
+                                        <input type="text" id="upcManufacturer" placeholder="12345" maxlength="5" pattern="[0-9]*">
+                                        <span class="input-hint">Manufacturer code / Producentkode</span>
+                                    </div>
+                                    <div class="gs1-field">
+                                        <label for="upcProduct">Product / Produkt (5 digits)</label>
+                                        <input type="text" id="upcProduct" placeholder="67890" maxlength="5" pattern="[0-9]*">
+                                        <span class="input-hint">Product code / Produktkode</span>
+                                    </div>
+                                    <div class="gs1-field">
+                                        <label>Check Digit / Kontrolciffer</label>
+                                        <input type="text" id="upcCheckDigit" readonly placeholder="Auto">
+                                        <span class="input-hint">Auto-calculated / Beregnes automatisk</span>
+                                    </div>
+                                </div>
+                                <div class="gs1-preview" id="upcPreview">
+                                    <span class="gs1-preview-label">Full Code / Fuld kode:</span>
+                                    <span class="gs1-preview-value" id="upcPreviewValue">---</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-group hidden" id="inputCode39">
+                            <label for="code39Input">Code 39 Data</label>
+                            <input type="text" id="code39Input" placeholder="HELLO-123" style="text-transform: uppercase;">
+                            <span class="input-hint">A-Z, 0-9, and - . $ / + % SPACE</span>
+                        </div>
+
+                        <div class="input-group hidden" id="inputCode128">
+                            <label for="code128Input">Code 128 Data</label>
+                            <input type="text" id="code128Input" placeholder="Hello World 123!">
+                            <span class="input-hint">Full ASCII character set supported</span>
+                        </div>
+
+                        <div class="input-group hidden" id="inputItf14">
+                            <div class="gs1-input-mode">
+                                <label class="radio-label">
+                                    <input type="radio" name="itf14Mode" value="simple" checked>
+                                    <span>Simple / Enkel</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="itf14Mode" value="gs1">
+                                    <span>GS1 Structure / GS1 Struktur</span>
+                                </label>
+                            </div>
+                            <div id="itf14SimpleInput">
+                                <label for="itf14Input">ITF-14 Code (13-14 digits)</label>
+                                <input type="text" id="itf14Input" placeholder="10012345678902" maxlength="14" pattern="[0-9]*">
+                                <span class="input-hint">14-digit shipping container code / 14-cifret forsendelseskode</span>
+                            </div>
+                            <div id="itf14Gs1Input" class="hidden">
+                                <div class="gs1-fields">
+                                    <div class="gs1-field">
+                                        <label for="itf14Indicator">Packaging Level / Emballageniveau (1 digit)</label>
+                                        <input type="text" id="itf14Indicator" placeholder="1" maxlength="1" pattern="[0-9]*">
+                                        <span class="input-hint">1-8 packaging level / Emballageniveau</span>
+                                    </div>
+                                    <div class="gs1-field">
+                                        <label for="itf14Company">Company Prefix / Virksomhedspræfiks (7 digits)</label>
+                                        <input type="text" id="itf14Company" placeholder="0012345" maxlength="7" pattern="[0-9]*">
+                                        <span class="input-hint">GS1 company prefix / GS1 virksomhedspræfiks</span>
+                                    </div>
+                                    <div class="gs1-field">
+                                        <label for="itf14Product">Item Reference / Varereference (5 digits)</label>
+                                        <input type="text" id="itf14Product" placeholder="67890" maxlength="5" pattern="[0-9]*">
+                                        <span class="input-hint">Product reference / Produktreference</span>
+                                    </div>
+                                    <div class="gs1-field">
+                                        <label>Check Digit / Kontrolciffer</label>
+                                        <input type="text" id="itf14CheckDigit" readonly placeholder="Auto">
+                                        <span class="input-hint">Auto-calculated / Beregnes automatisk</span>
+                                    </div>
+                                </div>
+                                <div class="gs1-preview" id="itf14Preview">
+                                    <span class="gs1-preview-label">Full Code / Fuld kode:</span>
+                                    <span class="gs1-preview-value" id="itf14PreviewValue">---</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="input-group hidden" id="inputDatamatrix">
+                            <label for="datamatrixInput">Data Matrix Content</label>
+                            <textarea id="datamatrixInput" placeholder="Enter data..." rows="3"></textarea>
+                        </div>
+
+                        <div class="input-group hidden" id="inputPdf417">
+                            <label for="pdf417Input">PDF417 Content</label>
+                            <textarea id="pdf417Input" placeholder="Enter data for ID card or document..." rows="3"></textarea>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- GS1 Info Panel -->
+                <section class="control-section expandable" id="gs1InfoSection">
+                    <h2 class="section-title expandable-header" id="gs1InfoToggle">
+                        <span class="section-icon">📚</span>
+                        <span>Barcode Info / Stregkode Info</span>
+                        <span class="expand-icon">▼</span>
+                    </h2>
+                    <div class="expandable-content" id="gs1InfoContent">
+                        <div class="gs1-info-panel" id="gs1InfoPanel">
+                            <!-- Dynamic content will be inserted here -->
+                        </div>
+                        <div class="gs1-structure" id="gs1Structure">
+                            <!-- GS1 structure visualization for EAN/UPC -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Customization Section -->
+                <section class="control-section">
+                    <h2 class="section-title">
+                        <span class="section-icon">🎨</span>
+                        Customize
+                    </h2>
+                    <div class="customize-options">
+                        <div class="color-options">
+                            <div class="color-option">
+                                <label for="fgColor">Foreground</label>
+                                <input type="color" id="fgColor" value="#000000">
+                            </div>
+                            <div class="color-option">
+                                <label for="bgColor">Background</label>
+                                <input type="color" id="bgColor" value="#ffffff">
+                            </div>
+                        </div>
+                        <div class="size-option">
+                            <label for="barcodeSize">Size</label>
+                            <input type="range" id="barcodeSize" min="100" max="400" value="200">
+                            <span id="sizeValue">200px</span>
+                        </div>
+                        <div class="option-toggles">
+                            <label class="toggle-option">
+                                <input type="checkbox" id="showText" checked>
+                                <span class="toggle-slider"></span>
+                                <span class="toggle-label">Show Text</span>
+                            </label>
+                            <label class="toggle-option">
+                                <input type="checkbox" id="includeMargin" checked>
+                                <span class="toggle-slider"></span>
+                                <span class="toggle-label">Include Margin</span>
+                            </label>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- QR Customization Section (QR only) -->
+                <section class="control-section qr-only" id="qrCustomizeSection">
+                    <h2 class="section-title">
+                        <span class="section-icon">✨</span>
+                        QR Style / QR Stil
+                    </h2>
+                    <div class="qr-customize-options">
+                        <!-- Dot Style -->
+                        <div class="qr-option-group">
+                            <label>Dot Style / Prik Stil</label>
+                            <div class="qr-style-buttons" id="dotStyleBtns">
+                                <button class="qr-style-btn active" data-style="square" title="Square / Firkantet">■</button>
+                                <button class="qr-style-btn" data-style="rounded" title="Rounded / Afrundet">▢</button>
+                                <button class="qr-style-btn" data-style="dots" title="Dots / Prikker">●</button>
+                                <button class="qr-style-btn" data-style="classy" title="Classy / Klassisk">◆</button>
+                                <button class="qr-style-btn" data-style="classy-rounded" title="Classy Rounded">◇</button>
+                            </div>
+                        </div>
+
+                        <!-- Corner Style -->
+                        <div class="qr-option-group">
+                            <label>Corner Style / Hjørne Stil</label>
+                            <div class="qr-style-buttons" id="cornerStyleBtns">
+                                <button class="qr-style-btn active" data-style="square" title="Square / Firkantet">▣</button>
+                                <button class="qr-style-btn" data-style="dot" title="Dot / Prik">◉</button>
+                                <button class="qr-style-btn" data-style="extra-rounded" title="Extra Rounded / Ekstra Afrundet">◎</button>
+                            </div>
+                        </div>
+
+                        <!-- Gradient Options -->
+                        <div class="qr-option-group">
+                            <label>Color Mode / Farve Tilstand</label>
+                            <select id="qrGradientType">
+                                <option value="none">Solid Color / Ensfarvet</option>
+                                <option value="linear">Linear Gradient / Lineær Gradient</option>
+                                <option value="radial">Radial Gradient / Radial Gradient</option>
+                            </select>
+                        </div>
+
+                        <div class="qr-gradient-options hidden" id="qrGradientOptions">
+                            <div class="color-options">
+                                <div class="color-option">
+                                    <label for="gradientColor1">Color 1 / Farve 1</label>
+                                    <input type="color" id="gradientColor1" value="#000000">
+                                </div>
+                                <div class="color-option">
+                                    <label for="gradientColor2">Color 2 / Farve 2</label>
+                                    <input type="color" id="gradientColor2" value="#4f46e5">
+                                </div>
+                            </div>
+                            <div class="gradient-rotation" id="gradientRotationGroup">
+                                <label for="gradientRotation">Angle / Vinkel</label>
+                                <input type="range" id="gradientRotation" min="0" max="360" value="0">
+                                <span id="rotationValue">0°</span>
+                            </div>
+                        </div>
+
+                        <!-- Logo Upload -->
+                        <div class="qr-option-group">
+                            <label>Center Logo / Center Logo</label>
+                            <div class="logo-upload-area">
+                                <input type="file" id="qrLogoInput" accept="image/*" class="hidden">
+                                <button class="logo-upload-btn" id="logoUploadBtn">
+                                    <span>📷</span> Upload Logo
+                                </button>
+                                <button class="logo-remove-btn hidden" id="logoRemoveBtn">
+                                    <span>✕</span> Remove
+                                </button>
+                            </div>
+                            <div class="logo-preview hidden" id="logoPreview">
+                                <img id="logoPreviewImg" alt="Logo preview">
+                            </div>
+                            <div class="logo-size-option hidden" id="logoSizeOption">
+                                <label for="logoSize">Logo Size / Logo Størrelse</label>
+                                <input type="range" id="logoSize" min="10" max="40" value="25">
+                                <span id="logoSizeValue">25%</span>
+                            </div>
+                        </div>
+
+                        <!-- QR Info -->
+                        <div class="qr-customize-info">
+                            <span class="info-icon">ℹ️</span>
+                            <span class="info-text">QR codes use high error correction to remain scannable even with customizations.<br>
+                            <em>QR-koder bruger høj fejlkorrektion for at forblive scanbare selv med tilpasninger.</em></span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Generate Button -->
+                <button class="generate-btn" id="generateBtn">
+                    <span class="btn-content">
+                        <span class="btn-icon">⚡</span>
+                        Generate Barcode
+                    </span>
+                </button>
+            </aside>
+
+            <!-- Right Panel - Preview -->
+            <section class="preview-panel">
+                <div class="preview-header">
+                    <h2>Preview</h2>
+                    <div class="preview-info" id="previewInfo">
+                        <span class="info-badge">Ready</span>
+                    </div>
+                </div>
+                <div class="preview-container">
+                    <div class="preview-area" id="previewArea">
+                        <div class="placeholder" id="placeholder">
+                            <span class="placeholder-icon">📊</span>
+                            <p>Your barcode will appear here</p>
+                            <p class="placeholder-hint">Select a type and enter data to generate</p>
+                        </div>
+                        <div class="barcode-display hidden" id="barcodeDisplay">
+                            <canvas id="barcodeCanvas"></canvas>
+                            <div id="qrcodeContainer"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Export Options -->
+                <div class="export-section" id="exportSection">
+                    <h3>Export Options</h3>
+                    <div class="export-buttons">
+                        <button class="export-btn" id="copyBtn" title="Copy to Clipboard">
+                            <span class="export-icon">📋</span>
+                            <span>Copy</span>
+                        </button>
+                        <button class="export-btn" id="downloadPng" title="Download as PNG">
+                            <span class="export-icon">🖼️</span>
+                            <span>PNG</span>
+                        </button>
+                        <button class="export-btn" id="downloadSvg" title="Download as SVG">
+                            <span class="export-icon">📐</span>
+                            <span>SVG</span>
+                        </button>
+                        <button class="export-btn" id="downloadJpg" title="Download as JPEG">
+                            <span class="export-icon">📸</span>
+                            <span>JPEG</span>
+                        </button>
+                        <button class="export-btn" id="printBtn" title="Print">
+                            <span class="export-icon">🖨️</span>
+                            <span>Print</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- History Section -->
+                <div class="history-section" id="historySection">
+                    <h3>
+                        <span>Recent Codes</span>
+                        <button class="clear-history-btn" id="clearHistory" title="Clear History">🗑️</button>
+                    </h3>
+                    <div class="history-grid" id="historyGrid">
+                        <!-- History items will be added here -->
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Toast Notification -->
+        <div class="toast" id="toast">
+            <span class="toast-icon">✓</span>
+            <span class="toast-message" id="toastMessage">Copied to clipboard!</span>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
