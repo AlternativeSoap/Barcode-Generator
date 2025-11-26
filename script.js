@@ -17,19 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
             showText: true,
             includeMargin: true
         },
-        qrOptions: {
-            dotStyle: 'square',      // square, rounded, dots, classy, classy-rounded
-            cornerSquareStyle: 'square', // square, dot, extra-rounded
-            cornerDotStyle: 'square',    // square, dot
-            logoImage: null,          // base64 or URL
-            logoSize: 0.25,           // 0.1 to 0.4 (percentage of QR size)
-            logoMargin: 5,
-            logoBorderRadius: 0,
-            gradientType: 'none',     // none, linear, radial
-            gradientColor1: '#000000',
-            gradientColor2: '#4f46e5',
-            gradientRotation: 0       // 0-360 degrees
-        },
         history: []
     };
 
@@ -430,9 +417,6 @@ document.addEventListener('DOMContentLoaded', () => {
             generateBarcode();
         });
 
-        // QR Customization Controls
-        setupQRCustomizationListeners();
-
         // Generate Button
         elements.generateBtn.addEventListener('click', () => {
             generateBarcode(true); // true = save to history
@@ -481,6 +465,50 @@ document.addEventListener('DOMContentLoaded', () => {
             generateBarcode(false);
         });
 
+        // QR Customization listeners
+        document.getElementById('qrGradientType')?.addEventListener('change', (e) => {
+            const gradientOptions = document.getElementById('qrGradientOptions');
+            const rotationGroup = document.getElementById('gradientRotationGroup');
+            if (gradientOptions) {
+                gradientOptions.classList.toggle('hidden', e.target.value === 'none');
+            }
+            if (rotationGroup) {
+                rotationGroup.classList.toggle('hidden', e.target.value !== 'linear');
+            }
+            generateBarcode(false);
+        });
+        
+        document.getElementById('gradientColor1')?.addEventListener('input', () => generateBarcode(false));
+        document.getElementById('gradientColor2')?.addEventListener('input', () => generateBarcode(false));
+        document.getElementById('gradientRotation')?.addEventListener('input', (e) => {
+            const rotationValue = document.getElementById('rotationValue');
+            if (rotationValue) rotationValue.textContent = e.target.value + '°';
+            generateBarcode(false);
+        });
+        
+        // Logo customization listeners
+        document.getElementById('qrLogoUpload')?.addEventListener('change', () => generateBarcode(false));
+        document.getElementById('logoSizeSlider')?.addEventListener('input', (e) => {
+            const logoSizeValue = document.getElementById('logoSizeValue');
+            if (logoSizeValue) logoSizeValue.textContent = Math.round(e.target.value * 100) + '%';
+            generateBarcode(false);
+        });
+        document.getElementById('logoMarginSlider')?.addEventListener('input', (e) => {
+            const logoMarginValue = document.getElementById('logoMarginValue');
+            if (logoMarginValue) logoMarginValue.textContent = e.target.value + 'px';
+            generateBarcode(false);
+        });
+        document.getElementById('logoBorderRadiusSlider')?.addEventListener('input', (e) => {
+            const logoBorderRadiusValue = document.getElementById('logoBorderRadiusValue');
+            if (logoBorderRadiusValue) logoBorderRadiusValue.textContent = e.target.value + 'px';
+            generateBarcode(false);
+        });
+        document.getElementById('clearLogoBtn')?.addEventListener('click', () => {
+            const logoUpload = document.getElementById('qrLogoUpload');
+            if (logoUpload) logoUpload.value = '';
+            generateBarcode(false);
+        });
+
         // Export Buttons
         elements.exportBtns.copy.addEventListener('click', copyToClipboard);
         elements.exportBtns.png.addEventListener('click', () => downloadImage('png'));
@@ -520,117 +548,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // Show/hide QR content section
         if (state.type === 'QR') {
             elements.qrContentSection.classList.add('visible');
-            document.getElementById('qrCustomizeSection')?.classList.add('visible');
             updateContentTypeUI();
         } else {
             elements.qrContentSection.classList.remove('visible');
-            document.getElementById('qrCustomizeSection')?.classList.remove('visible');
             showInputGroup(`input${capitalize(state.type)}`) || showInputGroup('inputText');
         }
-    }
-    
-    function setupQRCustomizationListeners() {
-        // Dot style buttons
-        document.querySelectorAll('#dotStyleBtns .qr-style-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('#dotStyleBtns .qr-style-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                state.qrOptions.dotStyle = btn.dataset.style;
-                if (state.type === 'QR') generateBarcode(false);
-            });
-        });
-        
-        // Corner style buttons
-        document.querySelectorAll('#cornerStyleBtns .qr-style-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('#cornerStyleBtns .qr-style-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                state.qrOptions.cornerSquareStyle = btn.dataset.style;
-                if (state.type === 'QR') generateBarcode(false);
-            });
-        });
-        
-        // Gradient type
-        document.getElementById('qrGradientType')?.addEventListener('change', (e) => {
-            state.qrOptions.gradientType = e.target.value;
-            const gradientOptions = document.getElementById('qrGradientOptions');
-            const rotationGroup = document.getElementById('gradientRotationGroup');
-            
-            if (e.target.value === 'none') {
-                gradientOptions?.classList.add('hidden');
-            } else {
-                gradientOptions?.classList.remove('hidden');
-                // Hide rotation for radial gradient
-                if (e.target.value === 'radial') {
-                    rotationGroup?.classList.add('hidden');
-                } else {
-                    rotationGroup?.classList.remove('hidden');
-                }
-            }
-            if (state.type === 'QR') generateBarcode(false);
-        });
-        
-        // Gradient colors
-        document.getElementById('gradientColor1')?.addEventListener('input', (e) => {
-            state.qrOptions.gradientColor1 = e.target.value;
-            if (state.type === 'QR') generateBarcode(false);
-        });
-        
-        document.getElementById('gradientColor2')?.addEventListener('input', (e) => {
-            state.qrOptions.gradientColor2 = e.target.value;
-            if (state.type === 'QR') generateBarcode(false);
-        });
-        
-        // Gradient rotation
-        document.getElementById('gradientRotation')?.addEventListener('input', (e) => {
-            state.qrOptions.gradientRotation = parseInt(e.target.value);
-            document.getElementById('rotationValue').textContent = e.target.value + '°';
-            if (state.type === 'QR') generateBarcode(false);
-        });
-        
-        // Logo upload
-        document.getElementById('logoUploadBtn')?.addEventListener('click', () => {
-            document.getElementById('qrLogoInput')?.click();
-        });
-        
-        document.getElementById('qrLogoInput')?.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    state.qrOptions.logoImage = event.target.result;
-                    
-                    // Show preview
-                    document.getElementById('logoPreview')?.classList.remove('hidden');
-                    document.getElementById('logoPreviewImg').src = event.target.result;
-                    document.getElementById('logoSizeOption')?.classList.remove('hidden');
-                    document.getElementById('logoRemoveBtn')?.classList.remove('hidden');
-                    document.getElementById('logoUploadBtn')?.classList.add('hidden');
-                    
-                    if (state.type === 'QR') generateBarcode(false);
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-        
-        // Logo remove
-        document.getElementById('logoRemoveBtn')?.addEventListener('click', () => {
-            state.qrOptions.logoImage = null;
-            document.getElementById('qrLogoInput').value = '';
-            document.getElementById('logoPreview')?.classList.add('hidden');
-            document.getElementById('logoSizeOption')?.classList.add('hidden');
-            document.getElementById('logoRemoveBtn')?.classList.add('hidden');
-            document.getElementById('logoUploadBtn')?.classList.remove('hidden');
-            
-            if (state.type === 'QR') generateBarcode(false);
-        });
-        
-        // Logo size
-        document.getElementById('logoSize')?.addEventListener('input', (e) => {
-            state.qrOptions.logoSize = parseInt(e.target.value) / 100;
-            document.getElementById('logoSizeValue').textContent = e.target.value + '%';
-            if (state.type === 'QR') generateBarcode(false);
-        });
     }
 
     function updateContentTypeUI() {
@@ -1477,7 +1399,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function generateQRCode(data) {
         const size = state.options.size;
-        const qrOpts = state.qrOptions;
+        
+        // Get QR customization options from the DOM
+        const gradientType = document.getElementById('qrGradientType')?.value || 'none';
+        const gradientColor1 = document.getElementById('gradientColor1')?.value || '#000000';
+        const gradientColor2 = document.getElementById('gradientColor2')?.value || '#4f46e5';
+        const gradientRotation = parseInt(document.getElementById('gradientRotation')?.value || '0');
+        const logoInput = document.getElementById('qrLogoUpload');
+        const logoSizeSlider = document.getElementById('logoSizeSlider');
+        const logoMarginSlider = document.getElementById('logoMarginSlider');
+        const logoBorderRadiusSlider = document.getElementById('logoBorderRadiusSlider');
         
         // Create canvas for custom rendering
         const canvas = document.createElement('canvas');
@@ -1509,9 +1440,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Create gradient or solid fill
                 let fillStyle = state.options.fgColor;
-                if (qrOpts.gradientType !== 'none') {
-                    if (qrOpts.gradientType === 'linear') {
-                        const angle = qrOpts.gradientRotation * Math.PI / 180;
+                if (gradientType !== 'none') {
+                    if (gradientType === 'linear') {
+                        const angle = gradientRotation * Math.PI / 180;
                         const x1 = size/2 - Math.cos(angle) * size/2;
                         const y1 = size/2 - Math.sin(angle) * size/2;
                         const x2 = size/2 + Math.cos(angle) * size/2;
@@ -1520,21 +1451,32 @@ document.addEventListener('DOMContentLoaded', () => {
                     } else {
                         fillStyle = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
                     }
-                    fillStyle.addColorStop(0, qrOpts.gradientColor1);
-                    fillStyle.addColorStop(1, qrOpts.gradientColor2);
+                    fillStyle.addColorStop(0, gradientColor1);
+                    fillStyle.addColorStop(1, gradientColor2);
                 }
                 
-                // Draw styled QR code
-                drawStyledQR(ctx, qrImg, size, fillStyle, qrOpts);
+                // Draw styled QR code with simple square modules (more scannable)
+                drawSimpleStyledQR(ctx, qrImg, size, fillStyle);
                 
                 // Draw logo if present
-                if (qrOpts.logoImage) {
-                    drawLogoOnQR(ctx, size, qrOpts);
+                if (logoInput && logoInput.files && logoInput.files[0]) {
+                    const logoSize = parseFloat(logoSizeSlider?.value || '0.2');
+                    const logoMargin = parseInt(logoMarginSlider?.value || '5');
+                    const logoBorderRadius = parseInt(logoBorderRadiusSlider?.value || '0');
+                    
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        drawLogoOnQRSimple(ctx, size, e.target.result, logoSize, logoMargin, logoBorderRadius);
+                        // Re-add canvas to container after logo is drawn
+                        elements.qrcodeContainer.innerHTML = '';
+                        elements.qrcodeContainer.appendChild(canvas);
+                    };
+                    reader.readAsDataURL(logoInput.files[0]);
+                } else {
+                    // Add canvas to container
+                    elements.qrcodeContainer.innerHTML = '';
+                    elements.qrcodeContainer.appendChild(canvas);
                 }
-                
-                // Add canvas to container
-                elements.qrcodeContainer.innerHTML = '';
-                elements.qrcodeContainer.appendChild(canvas);
                 
             } catch (e) {
                 console.error('QR styling error:', e);
@@ -1556,7 +1498,7 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.qrcodeContainer.removeAttribute('title');
     }
     
-    function drawStyledQR(ctx, sourceImg, size, fillStyle, qrOpts) {
+    function drawSimpleStyledQR(ctx, sourceImg, size, fillStyle) {
         // Create temporary canvas to get QR data
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = size;
@@ -1564,11 +1506,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const tempCtx = tempCanvas.getContext('2d');
         
         // Draw source QR to temp canvas
-        if (sourceImg.tagName === 'IMG') {
-            tempCtx.drawImage(sourceImg, 0, 0, size, size);
-        } else {
-            tempCtx.drawImage(sourceImg, 0, 0, size, size);
-        }
+        tempCtx.drawImage(sourceImg, 0, 0, size, size);
         
         const imageData = tempCtx.getImageData(0, 0, size, size);
         const data = imageData.data;
@@ -1579,7 +1517,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         ctx.fillStyle = fillStyle;
         
-        // Draw each module with style
+        // Draw each module as a simple square (most scannable)
         for (let row = 0; row < moduleCount; row++) {
             for (let col = 0; col < moduleCount; col++) {
                 const x = col * moduleSize;
@@ -1592,7 +1530,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Check if this is a dark module
                 if (data[idx] < 128) {
-                    drawModule(ctx, x, y, moduleSize, qrOpts.dotStyle, isCornerSquare(row, col, moduleCount), isCornerDot(row, col, moduleCount), qrOpts);
+                    // Simple square modules - most reliable for scanning
+                    ctx.fillRect(x, y, moduleSize, moduleSize);
                 }
             }
         }
@@ -1621,81 +1560,34 @@ document.addEventListener('DOMContentLoaded', () => {
         );
     }
     
-    function isCornerSquare(row, col, moduleCount) {
-        // Check if module is part of the three corner finder patterns
-        const inTopLeft = row < 7 && col < 7;
-        const inTopRight = row < 7 && col >= moduleCount - 7;
-        const inBottomLeft = row >= moduleCount - 7 && col < 7;
-        return inTopLeft || inTopRight || inBottomLeft;
-    }
-    
-    function isCornerDot(row, col, moduleCount) {
-        // Check if module is the center dot of corner finder patterns
-        const isTopLeftCenter = row >= 2 && row <= 4 && col >= 2 && col <= 4;
-        const isTopRightCenter = row >= 2 && row <= 4 && col >= moduleCount - 5 && col <= moduleCount - 3;
-        const isBottomLeftCenter = row >= moduleCount - 5 && row <= moduleCount - 3 && col >= 2 && col <= 4;
-        return isTopLeftCenter || isTopRightCenter || isBottomLeftCenter;
-    }
-    
-    function drawModule(ctx, x, y, size, style, isCorner, isCornerCenter, qrOpts) {
-        const padding = size * 0.1;
-        const innerSize = size - padding * 2;
-        
-        // Use corner styles for finder patterns
-        if (isCorner && !isCornerCenter) {
-            const cornerStyle = qrOpts.cornerSquareStyle;
-            switch (cornerStyle) {
-                case 'dot':
-                    ctx.beginPath();
-                    ctx.arc(x + size/2, y + size/2, innerSize/2, 0, Math.PI * 2);
-                    ctx.fill();
-                    return;
-                case 'extra-rounded':
-                    drawRoundedRect(ctx, x + padding, y + padding, innerSize, innerSize, innerSize * 0.4);
-                    return;
-                default:
-                    ctx.fillRect(x + padding/2, y + padding/2, size - padding, size - padding);
-                    return;
+    function drawLogoOnQRSimple(ctx, size, logoDataUrl, logoSizeRatio, logoMargin, borderRadius) {
+        const logoImg = new Image();
+        logoImg.onload = () => {
+            const logoSize = size * logoSizeRatio;
+            const logoX = (size - logoSize) / 2;
+            const logoY = (size - logoSize) / 2;
+            
+            // Draw white background behind logo
+            ctx.fillStyle = '#ffffff';
+            if (borderRadius > 0) {
+                drawRoundedRect(ctx, logoX - logoMargin, logoY - logoMargin, logoSize + logoMargin * 2, logoSize + logoMargin * 2, borderRadius);
+            } else {
+                ctx.fillRect(logoX - logoMargin, logoY - logoMargin, logoSize + logoMargin * 2, logoSize + logoMargin * 2);
             }
-        }
-        
-        if (isCornerCenter) {
-            const cornerDotStyle = qrOpts.cornerDotStyle;
-            if (cornerDotStyle === 'dot') {
+            
+            // Draw logo
+            if (borderRadius > 0) {
+                ctx.save();
                 ctx.beginPath();
-                ctx.arc(x + size/2, y + size/2, innerSize/2, 0, Math.PI * 2);
-                ctx.fill();
-                return;
+                drawRoundedRectPath(ctx, logoX, logoY, logoSize, logoSize, borderRadius);
+                ctx.clip();
+                ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
+                ctx.restore();
+            } else {
+                ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
             }
-        }
-        
-        // Regular module styles
-        switch (style) {
-            case 'rounded':
-                drawRoundedRect(ctx, x + padding, y + padding, innerSize, innerSize, innerSize * 0.3);
-                break;
-            case 'dots':
-                ctx.beginPath();
-                ctx.arc(x + size/2, y + size/2, innerSize/2 * 0.85, 0, Math.PI * 2);
-                ctx.fill();
-                break;
-            case 'classy':
-                // Diamond shape
-                ctx.beginPath();
-                ctx.moveTo(x + size/2, y + padding);
-                ctx.lineTo(x + size - padding, y + size/2);
-                ctx.lineTo(x + size/2, y + size - padding);
-                ctx.lineTo(x + padding, y + size/2);
-                ctx.closePath();
-                ctx.fill();
-                break;
-            case 'classy-rounded':
-                // Rounded diamond
-                drawRoundedRect(ctx, x + padding, y + padding, innerSize, innerSize, innerSize * 0.5);
-                break;
-            default: // square
-                ctx.fillRect(x + padding/2, y + padding/2, size - padding, size - padding);
-        }
+        };
+        logoImg.src = logoDataUrl;
     }
     
     function drawRoundedRect(ctx, x, y, width, height, radius) {
@@ -1711,40 +1603,6 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.quadraticCurveTo(x, y, x + radius, y);
         ctx.closePath();
         ctx.fill();
-    }
-    
-    function drawLogoOnQR(ctx, size, qrOpts) {
-        if (!qrOpts.logoImage) return;
-        
-        const logoSize = size * qrOpts.logoSize;
-        const logoX = (size - logoSize) / 2;
-        const logoY = (size - logoSize) / 2;
-        const margin = qrOpts.logoMargin;
-        const borderRadius = qrOpts.logoBorderRadius;
-        
-        // Draw white background behind logo
-        ctx.fillStyle = state.options.bgColor;
-        if (borderRadius > 0) {
-            drawRoundedRect(ctx, logoX - margin, logoY - margin, logoSize + margin * 2, logoSize + margin * 2, borderRadius);
-        } else {
-            ctx.fillRect(logoX - margin, logoY - margin, logoSize + margin * 2, logoSize + margin * 2);
-        }
-        
-        // Draw logo
-        const logoImg = new Image();
-        logoImg.onload = () => {
-            if (borderRadius > 0) {
-                ctx.save();
-                ctx.beginPath();
-                drawRoundedRectPath(ctx, logoX, logoY, logoSize, logoSize, borderRadius);
-                ctx.clip();
-                ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
-                ctx.restore();
-            } else {
-                ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
-            }
-        };
-        logoImg.src = qrOpts.logoImage;
     }
     
     function drawRoundedRectPath(ctx, x, y, width, height, radius) {
